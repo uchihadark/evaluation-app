@@ -1,0 +1,71 @@
+{% extends 'evaluation/base.html' %}
+
+{% block content %}
+
+{% if messages %}
+{% for message in messages %}
+<div class="alert alert-primary" role="alert" {% if message.tags %} class="{{ message.tags }}" {% endif %}>
+	{{ message }}
+</div>
+{% endfor %}
+{% endif %}
+
+<h1 class="text-center">Students of Mentor {{ mentor.name }}</h1>
+<h3>Marks Locked</h3>
+<table class="table">
+	<tr>
+		<th>Name</th>
+		<th>Ideation</th>
+		<th>Execution</th>
+		<th>Viva/Pitch</th>
+		<th>Total Marks</th>
+	</tr>
+	{% for student in students %}
+	{% if student.marks_locked %}
+	<tr>
+		<td>{{ student.name }}</td>
+		<td>{{ student.ideation_marks }}</td>
+		<td>{{ student.execution_marks }}</td>
+		<td>{{ student.viva_marks }}</td>
+		<td>{{ student.total_marks }}</td>
+	</tr>
+	{% endif %}
+	{% endfor %}
+</table>
+<br>
+<h3>Marks Not Locked</h3>
+<table class="table">
+	<tr>
+		<th>Name</th>
+		<th>Ideation</th>
+		<th>Execution</th>
+		<th>Viva/
+			Pitch</th>
+		<th>Total Marks</th>
+		<th>Action</th>
+	</tr>
+	{% for student in students %}
+	{% if not student.marks_locked %}
+	<tr>
+		<td>{{ student.name }}</td>
+		<td>{{ student.ideation_marks }}</td>
+		<td>{{ student.execution_marks }}</td>
+		<td>{{ student.viva_marks }}</td>
+		<td>{{ student.total_marks }}</td>
+		<td>
+			<a class="btn btn-secondary btn-sm" href="{% url 'edit_student' student.id %}">Edit</a>
+			<a class="btn btn-sm btn-outline-danger" href="{% url 'delete_student' student.id %}">Delete</a>
+		</td>
+	</tr>
+	{% endif %}
+	{% endfor %}
+</table>
+
+<div class="d-flex justify-content-center">
+	<form action="{% url 'submit_final_marks' mentor.id %}" method="POST">
+		{% csrf_token %}
+		<input class="btn btn-primary btn-lg" type="submit" value="Submit Final Marks">
+	</form>
+</div>
+
+{% endblock %}

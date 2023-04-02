@@ -1,0 +1,104 @@
+{% extends 'evaluation/base.html' %}
+
+{% block content %}
+
+<div style="display: none
+;" id="alert-message" class="alert alert-primary" role="alert"></div>
+<br>
+<form method="post">
+	{% csrf_token %}
+	<label for="mentor">Select a mentor:</label>
+	<select id="mentor" name="mentor">
+		{% for mentor in mentors %}
+		<option value="{{ mentor.id }}">{{ mentor.name }}</option>
+		{% endfor %}
+	</select>
+
+	<br><br>
+
+	<label>Select students:</label><br>
+	{% for student in students %}
+	<div class="form-check form-check-inline">
+		<input class="form-check-input" type="checkbox" id="student{{ student.id }}" name="students"
+			value="{{ student.id }}" data-mentor="{% if student.mentor %}{{ student.mentor.id }}{% endif %}"
+			data-name="{{ student.name }}">
+		<label class="form-check-label" for="student{{ student.id }}">{{ student.name }}</label><br>
+	</div>
+	{% endfor %}
+
+	<br>
+
+	<input class="btn btn-secondary btn-sm" type="submit" value="Add">
+</form>
+
+<br>
+
+<button class="btn btn-primary btn-lg" id="view-students">View Students</button>
+
+<script>
+	function showError(message) {
+		// Get the alert-message element
+		var alertMessage = document.getElementById('alert-message');
+		// Set the message text
+		alertMessage.textContent = message;
+		// Show the alert-message element
+		alertMessage.style.display = 'block';
+	}
+
+	// Get references to the mentor select element and the student checkboxes
+	const mentorSelect = document.querySelector('#mentor');
+	const studentCheckboxes = document.querySelectorAll('input[name="students"]');
+
+	const viewStudentsButton = document.querySelector('#view-students');
+
+	// Get a reference to the form and the submit button
+	const form = document.querySelector('form');
+	const submitButton = document.querySelector('input[type="submit"]');
+
+	viewStudentsButton.addEventListener('click', () => {
+		// Get the selected mentor
+		const selectedMentor = mentorSelect.value;
+
+		// Check if a mentor is selected
+		if (selectedMentor) {
+			// Redirect to the view students page for the selected mentor
+			window.location.href = `/view_students/${selectedMentor}/`;
+		}
+
+	});
+
+	// Add an event listener to the form to handle form submission
+	form.addEventListener('submit', (event) => {
+		// Get the selected mentor and students
+		const selectedMentor = mentorSelect.value;
+		const selectedStudents = [...studentCheckboxes].filter((checkbox) => checkbox.checked).map((checkbox) => checkbox.value);
+
+
+		// Check if the number of selected students is between 3 and 4
+		if (selectedStudents.length < 3 || selectedStudents.length > 4) {
+			// The number of selected students is not between 3 and 4, so display an alert and prevent form submission
+			showError('Please select between 3 and 4 students.')
+			event.preventDefault();
+			return;
+		}
+
+
+		// Check if any of the selected students are already assigned to another mentor
+		for (const checkbox of studentCheckboxes) {
+			if (checkbox.checked && checkbox.dataset.mentor && checkbox.dataset.mentor !== selectedMentor) {
+				// The student is already assigned to another mentor, so display an alert message and prevent form submission
+				showError(`Student ${checkbox.dataset.name} is already assigned to another mentor. Please select a different student.`)
+				event.preventDefault();
+				return;
+			}
+			if (checkbox.checked && checkbox.dataset.mentor && checkbox.dataset.mentor == selectedMentor) {
+				// The student is already assigned to same mentor, so display an alert message and prevent form submission
+				showError(`Student ${checkbox.dataset.name} is already assigned to selected mentor. Please select a different student. You can also View Students of current mentor by clicking on view student button.`)
+				event.preventDefault();
+				return;
+			}
+		}
+	});
+</script>
+
+{% endblock %}
