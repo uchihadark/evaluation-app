@@ -24,6 +24,12 @@ A Dashboard to evaluate student based on different parameters
 
 ***
 
+<h3>Editing Marks of student</h3>
+<img src="/ScreenShots/Editing marks.png">
+
+
+***
+
 <h3>Trying to delete student below minium condition</h3>
 <img src="/ScreenShots/Trying to delete below the specific range .png">
 
